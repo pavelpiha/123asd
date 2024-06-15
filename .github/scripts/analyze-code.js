@@ -4,11 +4,7 @@ const API_KEY = process.env.API_KEY || "";
 const API_ENDPOINT = process.env.API_ENDPOINT;
 
 // import dotenv from "dotenv";
-import {
-  OpenAIClient,
-  AzureKeyCredential,
-  ChatRequestMessage,
-} from "@azure/openai";
+import { OpenAIClient, AzureKeyCredential } from "@azure/openai";
 import axios from "axios";
 
 // dotenv.config({
