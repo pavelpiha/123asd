@@ -37,13 +37,10 @@ import axios from "axios";
 })();
 
 async function getAvailableDeploymentsOfModels() {
-  const response = await axios.get(
-    `${API_ENDPOINT}/openai/deployments`,
-    {
-      headers: { "Api-Key": API_KEY },
-    }
-  );
-  console.log(response.data.data.map((deployment: any) => deployment.id));
+  const response = await axios.get(`${API_ENDPOINT}/openai/deployments`, {
+    headers: { "Api-Key": API_KEY },
+  });
+  console.log(response.data.data.map((deployment) => deployment.id));
 }
 
 async function getChatCompletions35Axios() {
