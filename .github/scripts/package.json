@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "main": "analyze-code.js",
+  "type": "module",
   "scripts": {},
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "@azure/openai": "^1.0.0-beta.12",
     "axios": "^1.7.2"
