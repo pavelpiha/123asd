@@ -2,6 +2,11 @@ name: Style Guide Compliance Check
 on:
   workflow_dispatch:
   pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - ready_for_review
     branches:
       - "main"
 jobs:

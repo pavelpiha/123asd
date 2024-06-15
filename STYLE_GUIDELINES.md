@@ -20,12 +20,14 @@ src/app/shared/${ENTITY-NAME}/service/${ENTITY-NAME}-dao.service.ts
 2. **Strict Commit Messages**
   - For self review use such commit message: "chore: self review"
   - For resolving conflicts use such commit message: "chore: resolve review commits"
-  - For bug fixes always add the number of ticket in the scope. example "fix(DDIAAS-8888): remove feature"
-3. **Branch Naming**: Use descriptive branch names prefixed with the type of task (e.g., `feature/add-login-button`, `fix/fix-login-error`).
+  - For bug fixes always add the ticket identifier in the scope: "fix(DDIAAS-8888): remove feature"
+3. **Branch Naming strategy**: Use descriptive branch names prefixed with the type of tasks. allowed branches prefixes are from such regexp: feature|fix[/-]
+(for example: `feature/add-login-button`, `feature-implement-dropdown-for-user-form`, , `fix/fix-login-error`).
 
 ## Pull Requests
 
 1. **PR Description**: Provide a detailed description of the changes in the PR. Include the purpose of the PR and any relevant context.
+2. **Main branch restrictions**: It is allowed to raise Pull Requests only from `feature` and `fix` branches to the `main` branch
 
 
 ## Linting
