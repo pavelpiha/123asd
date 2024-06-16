@@ -5,7 +5,6 @@ import parseDiff, { Chunk, File } from "parse-diff";
 import { minimatch } from "minimatch";
 import Anthropic from "@anthropic-ai/sdk";
 import { Message, MessageParam, TextBlock } from "@anthropic-ai/sdk/resources";
-import { APIPromise } from "@anthropic-ai/sdk/core";
 
 interface PullRequestDetails {
   owner: string;
@@ -22,7 +21,6 @@ const TOKEN = process.env.GIT_PAT;
 const PATH_TO_STYLE_GUIDE = "../../STYLE_GUIDELINES.md";
 const octokit = new Octokit({ auth: TOKEN });
 const client = new Anthropic();
-
 async function createAPIMessage(messages: MessageParam[]): Promise<Message> {
   return await client.messages.create({
     model: "claude-3-opus-20240229",
@@ -31,11 +29,10 @@ async function createAPIMessage(messages: MessageParam[]): Promise<Message> {
   });
 }
 
-function readStyleGuide() {
+function readStyleGuide(): string {
   if (existsSync(PATH_TO_STYLE_GUIDE)) {
     try {
-      const data = readFileSync(PATH_TO_STYLE_GUIDE, "utf8");
-      return JSON.parse(data);
+      return readFileSync(PATH_TO_STYLE_GUIDE, "utf8");
     } catch (error) {
       console.log("ERROR: Can not read Style guide file");
     }

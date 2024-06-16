@@ -18,8 +18,7 @@ async function createAPIMessage(messages) {
 function readStyleGuide() {
     if (existsSync(PATH_TO_STYLE_GUIDE)) {
         try {
-            const data = readFileSync(PATH_TO_STYLE_GUIDE, "utf8");
-            return JSON.parse(data);
+            return readFileSync(PATH_TO_STYLE_GUIDE, "utf8");
         }
         catch (error) {
             console.log("ERROR: Can not read Style guide file");
