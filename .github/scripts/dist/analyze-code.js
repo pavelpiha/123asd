@@ -5,7 +5,7 @@ import parseDiff from "parse-diff";
 import { minimatch } from "minimatch";
 import Anthropic from "@anthropic-ai/sdk";
 const TOKEN = process.env.GIT_PAT;
-const PATH_TO_STYLE_GUIDE = "../../STYLE_GUIDELINES.md";
+const PATH_TO_STYLE_GUIDE = "./STYLE_GUIDELINES.md";
 const octokit = new Octokit({ auth: TOKEN });
 const client = new Anthropic();
 async function createAPIMessage(messages) {
