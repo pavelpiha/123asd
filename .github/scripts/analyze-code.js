@@ -16,10 +16,11 @@ const createAPIMessage = async (messages) => {
 const processRequest = async (message) => {
   const messages = [
     { role: "user", content: message },
-    { role: "assistant", content: "AI_ASSISTANT: " },
+    { role: "assistant", content: "AI_ASSISTANT:" },
   ];
   const response = await createAPIMessage(messages);
   console.log("------11111111111--------");
+  console.log("------message--------", message);
   console.log(response);
   console.log("------22222222222--------");
 };
