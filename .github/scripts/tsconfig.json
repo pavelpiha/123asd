@@ -2,7 +2,7 @@
   "compileOnSave": false,
   "compilerOptions": {
     "baseUrl": "./",
-    "outDir": "./dist",
+    "outDir": "./",
     "sourceMap": false,
     "allowSyntheticDefaultImports": true,
     "removeComments": true,

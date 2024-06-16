@@ -2,7 +2,7 @@
   "name": "scripts",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/analyze-code.js",
+  "main": "analyze-code.js",
   "type": "module",
   "scripts": {
     "build": "tsc",
