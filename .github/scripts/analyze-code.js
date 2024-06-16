@@ -6,10 +6,9 @@ import Anthropic from "@anthropic-ai/sdk";
 const client = new Anthropic();
 
 const createAPIMessage = async (messages) => {
-  return client.messages.stream({
-    max_tokens: 1024,
-    temperature: 0.0,
+  return await client.messages.create({
     model: "claude-3-opus-20240229",
+    max_tokens: 1024,
     messages,
   });
 };
@@ -25,4 +24,4 @@ const processRequest = async (message) => {
   console.log("------22222222222--------");
 };
 
-processRequest('what is a capital of Ukraine?');
+processRequest("what is a capital of Ukraine?");
