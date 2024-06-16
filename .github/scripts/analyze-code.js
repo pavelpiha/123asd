@@ -1,13 +1,19 @@
-import { existsSync, readFileSync } from "fs";
+import { readFileSync } from "fs";
 import * as core from "@actions/core";
 import { Octokit } from "@octokit/rest";
 import parseDiff from "parse-diff";
 import { minimatch } from "minimatch";
 import Anthropic from "@anthropic-ai/sdk";
+import { readFile } from "fs/promises";
+import { fileURLToPath } from "url";
+import { dirname, resolve } from "path";
 const TOKEN = process.env.GIT_PAT;
 const PATH_TO_STYLE_GUIDE = "../../STYLE_GUIDELINES.md";
 const octokit = new Octokit({ auth: TOKEN });
 const client = new Anthropic();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const filePath = resolve(__dirname, PATH_TO_STYLE_GUIDE);
 async function createAPIMessage(messages) {
     return await client.messages.create({
         model: "claude-3-opus-20240229",
@@ -15,18 +21,12 @@ async function createAPIMessage(messages) {
         messages,
     });
 }
-function readStyleGuide() {
-    if (existsSync(PATH_TO_STYLE_GUIDE)) {
-        try {
-            return readFileSync(PATH_TO_STYLE_GUIDE, "utf8");
-        }
-        catch (error) {
-            console.log("ERROR: Can not read Style guide file");
-        }
+async function readStyleGuide() {
+    try {
+        return await readFile(filePath, "utf8");
     }
-    else {
-        console.log("ERROR: Style guide file not found");
-        return "";
+    catch (err) {
+        console.error("Error reading the file:", err);
     }
 }
 async function getPullRequestDetails() {
@@ -117,7 +117,7 @@ async function createReviewComment(owner, repo, pull_number, comments) {
     });
 }
 async function main() {
-    const styleGuide = readStyleGuide();
+    const styleGuide = await readStyleGuide();
     if (!styleGuide) {
         console.log("ERROR: Style guide not found");
         return;
