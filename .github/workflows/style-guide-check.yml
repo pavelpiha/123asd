@@ -18,8 +18,7 @@ jobs:
     env:
       USER: "pavelpiha"
       GIT_PAT: ${{secrets.GIT_PAT}}
-      API_KEY: ${{secrets.API_KEY}}
-      API_ENDPOINT: ${{secrets.API_ENDPOINT}}
+      ANTHROPIC_API_KEY: ${{secrets.PAVEL_EPAM}}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
