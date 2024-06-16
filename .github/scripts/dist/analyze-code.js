@@ -4,20 +4,18 @@ import { Octokit } from "@octokit/rest";
 import parseDiff from "parse-diff";
 import { minimatch } from "minimatch";
 import Anthropic from "@anthropic-ai/sdk";
-
 const TOKEN = process.env.GIT_PAT;
 const octokit = new Octokit({ auth: TOKEN });
 const client = new Anthropic();
-
-const createAPIMessage = async (messages) => {
+async function createAPIMessage(messages) {
   return await client.messages.create({
     model: "claude-3-opus-20240229",
     max_tokens: 1024,
     messages,
   });
-};
-
+}
 async function getPullRequestDetails() {
+  console.log("process.env.GITHUB_EVENT_PATH", process.env.GITHUB_EVENT_PATH);
   const { repository, number } = JSON.parse(
     readFileSync(process.env.GITHUB_EVENT_PATH || "", "utf8")
   );
@@ -32,10 +30,22 @@ async function getPullRequestDetails() {
     pull_number: number,
     title: prResponse.data.title ?? "",
     description: prResponse.data.body ?? "",
-    base: prResponse.data.base,
+    baseBranch: prResponse.data.base.ref ?? "",
+    targetBranch: prResponse.data.head.ref ?? "",
+    commitMessages: [],
   };
 }
-
+async function getPullRequestCommitsNames() {
+  const { repository, number } = JSON.parse(
+    readFileSync(process.env.GITHUB_EVENT_PATH || "", "utf8")
+  );
+  const response = await octokit.pulls.listCommits({
+    owner: repository.owner.login,
+    repo: repository.name,
+    pull_number: number,
+  });
+  return response.data.map((commit) => commit.commit.message);
+}
 async function getDiff(owner, repo, pull_number) {
   const response = await octokit.pulls.get({
     owner,
@@ -45,17 +55,15 @@ async function getDiff(owner, repo, pull_number) {
   });
   return response.data;
 }
-
 async function analyzeCode(parsedDiff, PullRequestDetails) {
   const comments = [];
   for (const file of parsedDiff) {
     if (file.to === "/dev/null") continue;
     for (const chunk of file.chunks) {
       const prompt = createPrompt(file, chunk, PullRequestDetails);
-      //   const aiResponse = await getAIResponse(prompt);
       const aiResponse = [
         {
-          lineNumber: 1,
+          lineNumber: "1",
           reviewComment: prompt,
         },
       ];
@@ -69,34 +77,9 @@ async function analyzeCode(parsedDiff, PullRequestDetails) {
   }
   return comments;
 }
-
 function createPrompt(file, chunk, PullRequestDetails) {
-  return `Your task is to compare pull requests. Instructions:
-- Provide the response in following JSON format:  {"reviews": [{"lineNumber":  <line_number>, "reviewComment": "<review comment>"}]}
-- Do not give positive comments or compliments.
-- Provide comments and suggestions ONLY if there is something to improve, otherwise "reviews" should be an empty array.
-- Write the comment in GitHub Markdown format.
-- Use the given description only for the overall context and only comment the code.
-- IMPORTANT: NEVER suggest adding comments to the code.
-
-Review the following code diff in the file "${file.to}" and take the pull request title and description into account when writing the response.
-
-Pull request title: ${PullRequestDetails.title}
-Pull request description:
-
----
-${PullRequestDetails.description}
----
-
-Git diff to review:
-
-\`\`\`diff
-${chunk.content}
-${chunk.changes.map((c) => `${c.ln ? c.ln : c.ln2} ${c.content}`).join("\n")}
-\`\`\`
-`;
+  return "";
 }
-
 async function getAIResponse(prompt) {
   try {
     const result = await createAPIMessage([{ role: "user", content: prompt }]);
@@ -111,7 +94,6 @@ async function getAIResponse(prompt) {
     return null;
   }
 }
-
 function createComment(file, chunk, aiResponses) {
   return aiResponses.flatMap((aiResponse) => {
     if (!file.to) {
@@ -124,7 +106,6 @@ function createComment(file, chunk, aiResponses) {
     };
   });
 }
-
 async function createReviewComment(owner, repo, pull_number, comments) {
   await octokit.pulls.createReview({
     owner,
@@ -134,18 +115,24 @@ async function createReviewComment(owner, repo, pull_number, comments) {
     event: "COMMENT",
   });
 }
-
 async function main() {
-  const PullRequestDetails = await getPullRequestDetails();
+  const pullRequestDetails = await getPullRequestDetails();
+  const commits = await getPullRequestCommitsNames();
+  pullRequestDetails.commitMessages = commits;
+  console.log(
+    "-------------pullRequestDetails---------start------",
+    pullRequestDetails
+  );
+  console.log("-------------pullRequestDetails---------end------");
   let diff;
   const eventData = JSON.parse(
     readFileSync(process.env.GITHUB_EVENT_PATH ?? "", "utf8")
   );
   if (eventData.action === "opened") {
     diff = await getDiff(
-      PullRequestDetails.owner,
-      PullRequestDetails.repo,
-      PullRequestDetails.pull_number
+      pullRequestDetails.owner,
+      pullRequestDetails.repo,
+      pullRequestDetails.pull_number
     );
   } else if (eventData.action === "synchronize") {
     const newBaseSha = eventData.before;
@@ -154,8 +141,8 @@ async function main() {
       headers: {
         accept: "application/vnd.github.v3.diff",
       },
-      owner: PullRequestDetails.owner,
-      repo: PullRequestDetails.repo,
+      owner: pullRequestDetails.owner,
+      repo: pullRequestDetails.repo,
       base: newBaseSha,
       head: newHeadSha,
     });
@@ -178,17 +165,8 @@ async function main() {
       minimatch(file.to ?? "", pattern)
     );
   });
-  const comments = await analyzeCode(filteredDiff, PullRequestDetails);
-//   if (comments.length > 0) {
-//     await createReviewComment(
-//       PullRequestDetails.owner,
-//       PullRequestDetails.repo,
-//       PullRequestDetails.pull_number,
-//       comments
-//     );
-//   }
+  const comments = await analyzeCode(filteredDiff, pullRequestDetails);
 }
-
 main().catch((error) => {
   console.error("Error:", error);
   process.exit(1);
