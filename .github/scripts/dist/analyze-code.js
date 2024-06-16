@@ -1,10 +1,11 @@
-import { readFileSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import * as core from "@actions/core";
 import { Octokit } from "@octokit/rest";
 import parseDiff from "parse-diff";
 import { minimatch } from "minimatch";
 import Anthropic from "@anthropic-ai/sdk";
 const TOKEN = process.env.GIT_PAT;
+const PATH_TO_STYLE_GUIDE = "../../STYLE_GUIDELINES.md";
 const octokit = new Octokit({ auth: TOKEN });
 const client = new Anthropic();
 async function createAPIMessage(messages) {
@@ -13,6 +14,21 @@ async function createAPIMessage(messages) {
         max_tokens: 1024,
         messages,
     });
+}
+function readStyleGuide() {
+    if (existsSync(PATH_TO_STYLE_GUIDE)) {
+        try {
+            const data = readFileSync(PATH_TO_STYLE_GUIDE, "utf8");
+            return JSON.parse(data);
+        }
+        catch (error) {
+            console.log("ERROR: Can not read Style guide file");
+        }
+    }
+    else {
+        console.log("ERROR: Style guide file not found");
+        return "";
+    }
 }
 async function getPullRequestDetails() {
     const { repository, number } = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH || "", "utf8"));
@@ -27,8 +43,8 @@ async function getPullRequestDetails() {
         pull_number: number,
         title: prResponse.data.title ?? "",
         description: prResponse.data.body ?? "",
-        baseBranch: prResponse.data.base.ref ?? "",
-        targetBranch: prResponse.data.head.ref ?? "",
+        targetBranch: prResponse.data.base.ref ?? "",
+        sourceBranch: prResponse.data.head.ref ?? "",
         commitMessages: [],
     };
 }
@@ -57,18 +73,6 @@ async function analyzeCode(parsedDiff, PullRequestDetails) {
             continue;
         for (const chunk of file.chunks) {
             const prompt = createPrompt(file, chunk, PullRequestDetails);
-            const aiResponse = [
-                {
-                    lineNumber: "1",
-                    reviewComment: prompt,
-                },
-            ];
-            if (aiResponse) {
-                const newComments = createComment(file, chunk, aiResponse);
-                if (newComments) {
-                    comments.push(...newComments);
-                }
-            }
         }
     }
     return comments;
@@ -114,6 +118,12 @@ async function createReviewComment(owner, repo, pull_number, comments) {
     });
 }
 async function main() {
+    const styleGuide = readStyleGuide();
+    if (!styleGuide) {
+        console.log("ERROR: Style guide not found");
+        return;
+    }
+    console.log("styleGuide", styleGuide);
     const pullRequestDetails = await getPullRequestDetails();
     const commits = await getPullRequestCommitsNames();
     pullRequestDetails.commitMessages = commits;
@@ -146,6 +156,7 @@ async function main() {
         console.log("No diff found");
         return;
     }
+    console.log("diff", diff);
     const parsedDiff = parseDiff(diff);
     const excludePatterns = core
         .getInput("exclude")
