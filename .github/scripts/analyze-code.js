@@ -26,7 +26,7 @@ async function readStyleGuide() {
         return await readFile(filePath, "utf8");
     }
     catch (err) {
-        console.error("Error reading the file:", err);
+        console.log("Error: reading the file:", err);
     }
 }
 async function getPullRequestDetails() {
@@ -70,7 +70,13 @@ async function analyzeCode(styleGuide, parsedDiff, PullRequestDetails) {
         if (file.to === "/dev/null")
             continue;
         const prompt = createPrompt(styleGuide, file, PullRequestDetails);
-        console.log("---------prompt--------", prompt);
+        const aiResponse = await getAIResponse(prompt);
+        if (aiResponse) {
+            const newComments = createComment(file, aiResponse);
+            if (newComments) {
+                comments.push(...newComments);
+            }
+        }
     }
     return comments;
 }
@@ -131,7 +137,7 @@ async function getAIResponse(prompt) {
         return null;
     }
 }
-function createComment(file, chunk, aiResponses) {
+function createComment(file, aiResponses) {
     return aiResponses.flatMap((aiResponse) => {
         if (!file.to) {
             return [];
@@ -158,12 +164,9 @@ async function main() {
         console.log("ERROR: Style guide not found");
         return;
     }
-    console.log("styleGuide", styleGuide);
     const pullRequestDetails = await getPullRequestDetails();
     const commits = await getPullRequestCommitsNames();
     pullRequestDetails.commitMessages = commits;
-    console.log("-------------pullRequestDetails---------start------", pullRequestDetails);
-    console.log("-------------pullRequestDetails---------end------");
     let diff;
     const eventData = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH ?? "", "utf8"));
     if (eventData.action === "opened") {
@@ -191,7 +194,6 @@ async function main() {
         console.log("No diff found");
         return;
     }
-    console.log("diff", diff);
     const parsedDiff = parseDiff(diff);
     const excludePatterns = core
         .getInput("exclude")
@@ -201,6 +203,9 @@ async function main() {
         return !excludePatterns.some((pattern) => minimatch(file.to ?? "", pattern));
     });
     const comments = await analyzeCode(styleGuide, filteredDiff, pullRequestDetails);
+    if (comments.length > 0) {
+        await createReviewComment(pullRequestDetails.owner, pullRequestDetails.repo, pullRequestDetails.pull_number, comments);
+    }
 }
 main().catch((error) => {
     console.error("Error:", error);

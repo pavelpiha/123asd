@@ -1,11 +1,10 @@
-import { existsSync, readFileSync } from "fs";
+import { readFileSync } from "fs";
 import * as core from "@actions/core";
 import { Octokit } from "@octokit/rest";
-import parseDiff, { Chunk, File } from "parse-diff";
+import parseDiff, { File } from "parse-diff";
 import { minimatch } from "minimatch";
 import Anthropic from "@anthropic-ai/sdk";
 import { Message, MessageParam, TextBlock } from "@anthropic-ai/sdk/resources";
-import { APIPromise } from "@anthropic-ai/sdk/core";
 import { readFile } from "fs/promises";
 import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
@@ -40,7 +39,7 @@ async function readStyleGuide() {
   try {
     return await readFile(filePath, "utf8");
   } catch (err) {
-    console.error("Error reading the file:", err);
+    console.log("Error: reading the file:", err);
   }
 }
 
@@ -100,15 +99,13 @@ async function analyzeCode(
   for (const file of parsedDiff) {
     if (file.to === "/dev/null") continue; // Ignore deleted files
     const prompt = createPrompt(styleGuide, file, PullRequestDetails);
-    // const aiResponse = await getAIResponse(prompt);
-    // if (aiResponse) {
-    //   const newComments = createComment(file, chunk, aiResponse);
-    //   if (newComments) {
-    //     comments.push(...newComments);
-    //   }
-    // }
-
-    console.log("---------prompt--------", prompt);
+    const aiResponse = await getAIResponse(prompt);
+    if (aiResponse) {
+      const newComments = createComment(file, aiResponse);
+      if (newComments) {
+        comments.push(...newComments);
+      }
+    }
   }
   return comments;
 }
@@ -178,7 +175,6 @@ async function getAIResponse(prompt: string): Promise<Array<{
 
 function createComment(
   file: File,
-  chunk: Chunk,
   aiResponses: Array<{
     lineNumber: string;
     reviewComment: string;
@@ -217,15 +213,9 @@ async function main() {
     console.log("ERROR: Style guide not found");
     return;
   }
-  console.log("styleGuide", styleGuide);
   const pullRequestDetails = await getPullRequestDetails();
   const commits = await getPullRequestCommitsNames();
   pullRequestDetails.commitMessages = commits;
-  console.log(
-    "-------------pullRequestDetails---------start------",
-    pullRequestDetails
-  );
-  console.log("-------------pullRequestDetails---------end------");
   let diff: string | null;
   const eventData = JSON.parse(
     readFileSync(process.env.GITHUB_EVENT_PATH ?? "", "utf8")
@@ -261,7 +251,6 @@ async function main() {
     console.log("No diff found");
     return;
   }
-  console.log("diff", diff);
 
   const parsedDiff = parseDiff(diff);
 
@@ -282,14 +271,14 @@ async function main() {
     pullRequestDetails
   );
 
-  // if (comments.length > 0) {
-  //   await createReviewComment(
-  //     pullRequestDetails.owner,
-  //     pullRequestDetails.repo,
-  //     pullRequestDetails.pull_number,
-  //     comments
-  //   );
-  // }
+  if (comments.length > 0) {
+    await createReviewComment(
+      pullRequestDetails.owner,
+      pullRequestDetails.repo,
+      pullRequestDetails.pull_number,
+      comments
+    );
+  }
 }
 
 main().catch((error) => {
