@@ -41,7 +41,6 @@ async function getPullRequestDetails() {
         repo: repository.name,
         pull_number: number,
         title: prResponse.data.title ?? "",
-        description: prResponse.data.body ?? "",
         targetBranch: prResponse.data.base.ref ?? "",
         sourceBranch: prResponse.data.head.ref ?? "",
         commitMessages: [],
@@ -65,19 +64,56 @@ async function getDiff(owner, repo, pull_number) {
     });
     return response.data;
 }
-async function analyzeCode(parsedDiff, PullRequestDetails) {
+async function analyzeCode(styleGuide, parsedDiff, PullRequestDetails) {
     const comments = [];
     for (const file of parsedDiff) {
         if (file.to === "/dev/null")
             continue;
-        for (const chunk of file.chunks) {
-            const prompt = createPrompt(file, chunk, PullRequestDetails);
-        }
+        const prompt = createPrompt(styleGuide, file, PullRequestDetails);
+        console.log("---------prompt--------", prompt);
     }
     return comments;
 }
-function createPrompt(file, chunk, PullRequestDetails) {
-    return "";
+function createPrompt(styleGuide, file, pullRequestDetails) {
+    const chunkString = file.chunks.map((chunk) => {
+        return `\`\`\`diff
+      ${chunk.content}
+      ${chunk.changes
+            .map((change) => {
+            if (change.type === "add" || change.type === "del") {
+                return `${change.ln} ${change.content}`;
+            }
+            else {
+                return ` ${change.ln2} ${change.content}`;
+            }
+        })
+            .join("\n")}
+      \`\`\``;
+    });
+    return `Your task is to check pull request follows style-guide. Instructions:
+  - Provide the response in following JSON format:  {"reviews": [{"lineNumber":  <line_number>, "reviewComment": "<violated_rule_with_status>"}]}
+  - Do not provide any explanations or code in your response.
+  - Go through each rule strictly and carefully.
+  - Provide a list of violated rules as a bullet point exactly as it appears in the Style Guide, followed by the status 'false' if it is violated or 'true' if it is not violated or you are unsure
+  - Be especially careful when checking the branch and commit rules, as you have made mistakes in this area before.
+  - IMPORTANT: NEVER provide any explanations or code in your response.
+
+  Style guide:
+  <style-guide>
+  ${styleGuide}
+  </style-guide>
+
+  Pull request details:
+  Pull request title: ${pullRequestDetails.title}
+  Source branch: ${pullRequestDetails.sourceBranch}
+  Target branch: ${pullRequestDetails.targetBranch}
+  Commit message: ${pullRequestDetails.commitMessages}
+  File path and name : ${file.to}
+
+  Git diff to review:
+
+  ${chunkString.join("\n")}
+  `;
 }
 async function getAIResponse(prompt) {
     try {
@@ -164,7 +200,7 @@ async function main() {
     const filteredDiff = parsedDiff.filter((file) => {
         return !excludePatterns.some((pattern) => minimatch(file.to ?? "", pattern));
     });
-    const comments = await analyzeCode(filteredDiff, pullRequestDetails);
+    const comments = await analyzeCode(styleGuide, filteredDiff, pullRequestDetails);
 }
 main().catch((error) => {
     console.error("Error:", error);
