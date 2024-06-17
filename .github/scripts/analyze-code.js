@@ -71,12 +71,7 @@ async function analyzeCode(styleGuide, parsedDiff, PullRequestDetails) {
             continue;
         const prompt = createPrompt(styleGuide, file, PullRequestDetails);
         const aiResponse = await getAIResponse(prompt);
-        if (aiResponse) {
-            const newComments = createComment(file, aiResponse);
-            if (newComments) {
-                comments.push(...newComments);
-            }
-        }
+        console.log('aiResponse', aiResponse);
     }
     return comments;
 }
