@@ -5,14 +5,17 @@ import parseDiff from "parse-diff";
 import { minimatch } from "minimatch";
 import { readFile } from "fs/promises";
 import { fileURLToPath } from "url";
-import { dirname, resolve } from "path";
+import { dirname, resolve, extname } from "path";
 import { analyzePullRequest } from "./analyze-pull-request.js";
 import { analyzeCode } from "./analyze-code.js";
 const TOKEN = process.env.GIT_PAT;
-const PATH_TO_STYLE_GUIDE = "../../STYLE_GUIDELINES.md";
 const octokit = new Octokit({ auth: TOKEN });
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const isTypeScript = extname(__filename) === ".ts";
+const PATH_TO_STYLE_GUIDE = isTypeScript
+    ? "../../../STYLE_GUIDELINES.md"
+    : "../../STYLE_GUIDELINES.md";
 const filePath = resolve(__dirname, PATH_TO_STYLE_GUIDE);
 async function readStyleGuide() {
     try {
