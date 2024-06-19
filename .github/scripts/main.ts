@@ -7,10 +7,9 @@ import { minimatch } from "minimatch";
 import { readFile } from "fs/promises";
 import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
-import { analyzePullRequest } from "analyze-pull-request";
-import { PullRequestDetails } from "./models";
-import { analyzeCode } from "analyze-code";
-import { ReviewComment } from "models";
+import { analyzePullRequest } from "./analyze-pull-request";
+import { PullRequestDetails, ReviewComment } from "./models";
+import { analyzeCode } from "./analyze-code";
 
 const TOKEN = process.env.GIT_PAT;
 const PATH_TO_STYLE_GUIDE = "../../STYLE_GUIDELINES.md";
