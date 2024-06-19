@@ -17,8 +17,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const isTypeScript = extname(__filename) === ".ts";
 const PATH_TO_STYLE_GUIDE = isTypeScript
-  ? "../../../STYLE_GUIDELINES.md"
-  : "../../STYLE_GUIDELINES.md";
+  ? "../../STYLE_GUIDELINES.md"
+  : "../../../STYLE_GUIDELINES.md";
 const filePath = resolve(__dirname, PATH_TO_STYLE_GUIDE);
 
 async function readStyleGuide() {
