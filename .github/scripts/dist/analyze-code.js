@@ -6,8 +6,8 @@ export async function analyzeCode(styleGuide, parsedDiff, pullRequestDetails) {
             continue;
         const prompt = createPrompt(styleGuide, file, pullRequestDetails);
         const aiResponse = await getAIResponse(prompt);
-        console.log('analyze-code aiResponse:', aiResponse);
-        const codeComments = aiResponse.filter((item) => item.lineNumber !== "0");
+        console.log("analyze-code aiResponse:", aiResponse);
+        const codeComments = aiResponse.filter((item) => !isNaN(Number(item.lineNumber)) && Number(item.lineNumber) > 0);
         if (codeComments.length) {
             const newComments = createReviewComment(file, codeComments);
             if (newComments) {
