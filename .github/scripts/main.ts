@@ -11,7 +11,7 @@ import { analyzePullRequest } from "./analyze-pull-request";
 import { PullRequestDetails, ReviewComment } from "./models";
 import { analyzeCode } from "./analyze-code";
 
-const TOKEN = process.env.GIT_PAT;
+const TOKEN = process.env.GITHUB_TOKEN;
 const octokit = new Octokit({ auth: TOKEN });
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

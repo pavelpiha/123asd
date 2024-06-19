@@ -17,7 +17,7 @@ jobs:
       actions: read
     env:
       USER: "pavelpiha"
-      GIT_PAT: ${{secrets.GIT_PAT}}
+      GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       ANTHROPIC_API_KEY: ${{secrets.PAVEL_EPAM}}
     steps:
       - uses: actions/checkout@v4

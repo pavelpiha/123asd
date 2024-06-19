@@ -8,7 +8,7 @@ import { fileURLToPath } from "url";
 import { dirname, resolve, extname } from "path";
 import { analyzePullRequest } from "./analyze-pull-request.js";
 import { analyzeCode } from "./analyze-code.js";
-const TOKEN = process.env.GIT_PAT;
+const TOKEN = process.env.GITHUB_TOKEN;
 const octokit = new Octokit({ auth: TOKEN });
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
