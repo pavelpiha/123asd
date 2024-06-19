@@ -99,14 +99,40 @@ async function analyzeCode(
   for (const file of parsedDiff) {
     if (file.to === "/dev/null") continue; // Ignore deleted files
     const prompt = createPrompt(styleGuide, file, PullRequestDetails);
-    const aiResponse = await getAIResponse(prompt);
-    // if (aiResponse) {
-    //   const newComments = createComment(file, aiResponse);
-    //   if (newComments) {
-    //     comments.push(...newComments);
-    //   }
-    // }
-    console.log('aiResponse', aiResponse)
+    // const aiResponse = await getAIResponse(prompt);
+    const aiResponse = [
+      {
+        lineNumber: '1',
+        reviewComment:
+          "properties in @Component decorator should be sorted by next order: - false",
+      },
+      {
+        lineNumber: '1',
+        reviewComment: "Code should not contain commented out code. - false",
+      },
+      {
+        lineNumber: '1',
+        reviewComment:
+          "Use the [Conventional Commits](https://www.conventionalcommits.org/) format. - true",
+      },
+      {
+        lineNumber: '1',
+        reviewComment:
+          "Use descriptive branch names. Branches should start with prefixes: feature|fix[/-] - false",
+      },
+      {
+        lineNumber: '1',
+        reviewComment:
+          "pull request to the 'main' branch should be raised from a branch that starts with 'feature/' or 'fix/' - false",
+      },
+    ];
+    if (aiResponse) {
+      const newComments = createComment(file, aiResponse);
+      if (newComments) {
+        comments.push(...newComments);
+      }
+    }
+    console.log("aiResponse", aiResponse);
   }
   return comments;
 }
