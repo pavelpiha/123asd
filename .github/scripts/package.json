@@ -5,7 +5,7 @@
   "main": "main.js",
   "type": "module",
   "scripts": {
-    "build": "tsc",
+    "build": "webpack --mode development",
     "package": "ncc build --source-map"
   },
   "dependencies": {
@@ -20,6 +20,10 @@
     "@types/node": "^20.14.2",
     "@vercel/ncc": "^0.38.1",
     "prettier": "^3.2.5",
-    "typescript": "^5.4.2"
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.4.2",
+    "webpack": "^5.92.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-node-externals": "^3.0.0"
   }
 }
