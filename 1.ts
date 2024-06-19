@@ -1,9 +1,9 @@
 @Component({
+  imports [MatButtonModule, MatIconModule, MatTreeModule],
   selector app-tree-view,
   templateUrl tree-view.component.html,
   styleUrls [tree-view.component.scss],
   standalone true,
-  imports [MatButtonModule, MatIconModule, MatTreeModule],
 })
 export class TreeViewComponent {
   rawData string[] = [];
