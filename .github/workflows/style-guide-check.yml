@@ -30,4 +30,4 @@ jobs:
           npm install
       - name: Run Script
         run: |
-          node ./.github/scripts/analyze-code.js
+          node ./.github/scripts/dist/main.js
