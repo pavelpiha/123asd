@@ -8,7 +8,7 @@ export async function analyzePullRequest(
 ): Promise<string> {
   const prompt = createBasePullRequestPrompt(styleGuide, PullRequestDetails);
   const aiResponse = await getAICommentResponse(prompt);
-  console.log("aiResponse", aiResponse);
+  console.log("analyze PR response: ", aiResponse);
   return aiResponse;
 }
 
@@ -41,7 +41,7 @@ async function getAICommentResponse(prompt: string): Promise<string | null> {
   try {
     const result = await createAPIMessage([{ role: "user", content: prompt }]);
     if (result.content.length) {
-      return JSON.parse((result.content[0] as TextBlock).text).reviews;
+      return (result.content[0] as TextBlock).text;
     } else {
       console.error("Error: In result content ", result.content);
       return null;
