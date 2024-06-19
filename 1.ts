@@ -6,7 +6,7 @@
   standalone: true,
 })
 export class TreeViewComponent {
-  raw_data string: string[] = [];
+  raw_data: string[] = [];
   // private _transformer = (node string) = {}
   dataSource: string;
 }
