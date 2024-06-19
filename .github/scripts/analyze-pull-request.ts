@@ -1,16 +1,18 @@
 import { PullRequestDetails } from "models";
+import { createAPIMessage } from "./get-ai-response.js";
+import { TextBlock } from "@anthropic-ai/sdk/resources/messages.js";
 
 export async function analyzePullRequest(
   styleGuide: string,
   PullRequestDetails: PullRequestDetails
 ): Promise<string> {
   const prompt = createBasePullRequestPrompt(styleGuide, PullRequestDetails);
-  // const aiResponse = await getAIResponse(prompt);
-  const aiResponse = "";
+  const aiResponse = await getAICommentResponse(prompt);
+  console.log("aiResponse", aiResponse);
   return aiResponse;
 }
 
-export function createBasePullRequestPrompt(
+function createBasePullRequestPrompt(
   styleGuide: string,
   pullRequestDetails: PullRequestDetails
 ): string {
@@ -33,4 +35,19 @@ export function createBasePullRequestPrompt(
   Commit message: ${pullRequestDetails.commitMessages}
   Pull request description: ${pullRequestDetails.description}
   `;
+}
+
+async function getAICommentResponse(prompt: string): Promise<string | null> {
+  try {
+    const result = await createAPIMessage([{ role: "user", content: prompt }]);
+    if (result.content.length) {
+      return JSON.parse((result.content[0] as TextBlock).text).reviews;
+    } else {
+      console.error("Error: In result content ", result.content);
+      return null;
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    return null;
+  }
 }

@@ -1,9 +1,11 @@
+import { createAPIMessage } from "./get-ai-response.js";
 export async function analyzePullRequest(styleGuide, PullRequestDetails) {
     const prompt = createBasePullRequestPrompt(styleGuide, PullRequestDetails);
-    const aiResponse = "";
+    const aiResponse = await getAICommentResponse(prompt);
+    console.log("aiResponse", aiResponse);
     return aiResponse;
 }
-export function createBasePullRequestPrompt(styleGuide, pullRequestDetails) {
+function createBasePullRequestPrompt(styleGuide, pullRequestDetails) {
     return `Your task is to check pull request follows style-guide. Instructions:
   - Provide the response in following JSON format:  "Style guide: <violated_rule_with_status> new line for each rule."
   - Go through each rule strictly and carefully.
@@ -23,4 +25,20 @@ export function createBasePullRequestPrompt(styleGuide, pullRequestDetails) {
   Commit message: ${pullRequestDetails.commitMessages}
   Pull request description: ${pullRequestDetails.description}
   `;
+}
+async function getAICommentResponse(prompt) {
+    try {
+        const result = await createAPIMessage([{ role: "user", content: prompt }]);
+        if (result.content.length) {
+            return JSON.parse(result.content[0].text).reviews;
+        }
+        else {
+            console.error("Error: In result content ", result.content);
+            return null;
+        }
+    }
+    catch (error) {
+        console.error("Error:", error);
+        return null;
+    }
 }

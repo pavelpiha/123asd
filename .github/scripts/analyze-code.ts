@@ -1,5 +1,7 @@
 import { File } from "parse-diff";
 import { PullRequestDetails, ReviewComment } from "./models";
+import { createAPIMessage } from "./get-ai-response.js";
+import { TextBlock } from "@anthropic-ai/sdk/resources/messages.js";
 
 export async function analyzeCode(
   styleGuide: string,
@@ -11,18 +13,7 @@ export async function analyzeCode(
   for (const file of parsedDiff) {
     if (file.to === "/dev/null") continue; // Ignore deleted files
     const prompt = createPrompt(styleGuide, file, pullRequestDetails);
-    // const aiResponse = await getAIResponse(prompt);
-    const aiResponse = [
-      {
-        lineNumber: "1",
-        reviewComment:
-          "properties in @Component decorator should be sorted by next order: - false",
-      },
-      {
-        lineNumber: "0",
-        reviewComment: "basic rule violation: - false",
-      },
-    ];
+    const aiResponse = await getAIResponse(prompt);
     const codeComments = aiResponse.filter((item) => item.lineNumber !== "0");
     if (codeComments.length) {
       const newComments = createReviewComment(file, codeComments);
@@ -96,4 +87,22 @@ function createPrompt(
 
   ${chunkString.join("\n")}
   `;
+}
+
+async function getAIResponse(prompt: string): Promise<Array<{
+  lineNumber: string;
+  reviewComment: string;
+}> | null> {
+  try {
+    const result = await createAPIMessage([{ role: "user", content: prompt }]);
+    if (result.content.length) {
+      return JSON.parse((result.content[0] as TextBlock).text).reviews;
+    } else {
+      console.error("Error: In result content ", result.content);
+      return null;
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    return null;
+  }
 }

@@ -1,19 +1,11 @@
+import { createAPIMessage } from "./get-ai-response.js";
 export async function analyzeCode(styleGuide, parsedDiff, pullRequestDetails) {
     const reviewComments = [];
     for (const file of parsedDiff) {
         if (file.to === "/dev/null")
             continue;
         const prompt = createPrompt(styleGuide, file, pullRequestDetails);
-        const aiResponse = [
-            {
-                lineNumber: "1",
-                reviewComment: "properties in @Component decorator should be sorted by next order: - false",
-            },
-            {
-                lineNumber: "0",
-                reviewComment: "basic rule violation: - false",
-            },
-        ];
+        const aiResponse = await getAIResponse(prompt);
         const codeComments = aiResponse.filter((item) => item.lineNumber !== "0");
         if (codeComments.length) {
             const newComments = createReviewComment(file, codeComments);
@@ -75,4 +67,20 @@ function createPrompt(styleGuide, file, pullRequestDetails) {
 
   ${chunkString.join("\n")}
   `;
+}
+async function getAIResponse(prompt) {
+    try {
+        const result = await createAPIMessage([{ role: "user", content: prompt }]);
+        if (result.content.length) {
+            return JSON.parse(result.content[0].text).reviews;
+        }
+        else {
+            console.error("Error: In result content ", result.content);
+            return null;
+        }
+    }
+    catch (error) {
+        console.error("Error:", error);
+        return null;
+    }
 }
