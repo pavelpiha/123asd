@@ -75,22 +75,6 @@ async function analyzeCode(styleGuide, parsedDiff, PullRequestDetails) {
                 lineNumber: '1',
                 reviewComment: "properties in @Component decorator should be sorted by next order: - false",
             },
-            {
-                lineNumber: '1',
-                reviewComment: "Code should not contain commented out code. - false",
-            },
-            {
-                lineNumber: '1',
-                reviewComment: "Use the [Conventional Commits](https://www.conventionalcommits.org/) format. - true",
-            },
-            {
-                lineNumber: '1',
-                reviewComment: "Use descriptive branch names. Branches should start with prefixes: feature|fix[/-] - false",
-            },
-            {
-                lineNumber: '1',
-                reviewComment: "pull request to the 'main' branch should be raised from a branch that starts with 'feature/' or 'fix/' - false",
-            },
         ];
         if (aiResponse) {
             const newComments = createComment(file, aiResponse);
