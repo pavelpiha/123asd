@@ -8,7 +8,7 @@ export async function analyzePullRequest(styleGuide, PullRequestDetails) {
 function createBasePullRequestPrompt(styleGuide, pullRequestDetails) {
     return `Your task is to check pull request follows style-guide. Instructions:
   - Provide the response in following JSON format: "<Style guide Title> \n <style_guide_section>\n  <violated_rule> <status> \n"
-  - Example: "Checker Style guide: \n Section 1. \n Use camel case :x:\n"
+  - Example: "<Application name> Style guide: \n Section 1. \n Use camel case :x:\n"
   - Go through each rule strictly and carefully.
   - Provide a list of violated rules exactly as it appears in the Style Guide followed by the <status>. ':x:'- if rule is violated; ':confused:' - if you are unsure
   - Be especially careful when checking the branch and commit rules, as you have made mistakes in this area before.
