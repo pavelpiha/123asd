@@ -47,7 +47,3 @@ src/app/shared/${ENTITY-NAME}/service/${ENTITY-NAME}-dao.service.ts
 1. **PR Description**: Provide a detailed description of the changes in the PR. Include the purpose of the PR and any relevant context.
 2. **Main branch restrictions**: pull request to the 'main' branch should be raised from a branch that starts with 'feature/' or 'fix/'
 
-## Linting
-
-1. **Use ESLint**: All code should pass ESLint without any warnings or errors.
-2. **Run Linter and Tests Before Committing**: Run the linter and fix any issues before committing your code.

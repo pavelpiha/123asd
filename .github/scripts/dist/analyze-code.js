@@ -45,11 +45,11 @@ function createPrompt(styleGuide, file, pullRequestDetails) {
             .join("\n")}
       \`\`\``;
     });
-    return `Your task is to check pull request follows style-guide. Instructions:
+    return `Your task is to check pull request's code follows style-guide. Instructions:
   - Provide the response in following JSON format:  {"reviews": [{"lineNumber":  <line_number>, "reviewComment": "Style guide: <violated_rule_with_status>"}]}
-  - Go through each rule strictly and carefully.
-  - Provide a list of violated rules as a bullet point exactly as it appears in the Style Guide, followed by the status ':x:' if it is violated or ':thinking:' if you are unsure
-  - Be especially careful when checking the branch and commit rules, as you have made mistakes in this area before.
+  - Go through rules which are related to code strictly and carefully.
+  - Provide a list of violated rules followed by the status ':x:' if it is violated or ':thinking:' if you are unsure
+  - Be especially careful when checking the rules related to code, as you have made mistakes in this area before.
   - IMPORTANT: NEVER provide any explanations or code in your response.
 
   Style guide:
@@ -58,10 +58,6 @@ function createPrompt(styleGuide, file, pullRequestDetails) {
   </style-guide>
 
   Pull request details:
-  Pull request title: ${pullRequestDetails.title}
-  Source branch: ${pullRequestDetails.sourceBranch}
-  Target branch: ${pullRequestDetails.targetBranch}
-  Commit message: ${pullRequestDetails.commitMessages}
   File path and name : ${file.to}
 
   Git diff to review:
