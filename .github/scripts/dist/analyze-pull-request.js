@@ -7,7 +7,8 @@ export async function analyzePullRequest(styleGuide, PullRequestDetails) {
 }
 function createBasePullRequestPrompt(styleGuide, pullRequestDetails) {
     return `Your task is to check pull request follows style-guide. Instructions:
-  - Provide the response in following JSON format: "Style guide: <violated_rule> <STATUS> new line for each rule."
+  - Provide the response in following JSON format: "Style guide: <new line> <violated_rule> <status> new line for each rule."
+  - Example: "Style guide: <new line> <rule_name> <status> <new line> <rule_name> <status>"
   - Go through each rule strictly and carefully.
   - Provide a list of violated rules as a bullet point Exactly as it appears in the Style Guide (not only the number or rule but the name as well) followed by the <status>. ':x:'- if it is violated; ':white_check_mark:' - if it is not violated; ':confused:' - if you are unsure
   - Be especially careful when checking the branch and commit rules, as you have made mistakes in this area before.
