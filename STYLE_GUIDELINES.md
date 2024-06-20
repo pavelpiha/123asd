@@ -5,7 +5,7 @@
 1. **Components**:
 
 - Use stand alone Angular components.
-- Use only onPush Change Detection strategy.
+- Use only OnPush Change Detection strategy.
 - Common components should be stored in `src/app/common`
 - metadata properties in @Component decorator should be sorted by next order:
 
