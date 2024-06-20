@@ -68,9 +68,9 @@ function createPrompt(
       \`\`\``;
   });
   return `Your task is to check pull request's code follows style-guide. Instructions:
-  - Provide the response in following JSON format:  {"reviews": [{"lineNumber":  <line_number>, "reviewComment": "Style guide: <violated_rule_with_status>"}]}
+  - Provide the response in following JSON format:  {"reviews": [{"lineNumber":  <line_number>, "reviewComment": "Style guide: <violated_rule> <status>"}]}
   - Go through rules which are related to code strictly and carefully.
-  - Provide a list of violated rules followed by the status ':x:' if it is violated or ':thinking:' if you are unsure
+  - Provide a list of violated rules followed by the status. ':x:' - if rule is violated or ':thinking:' if you are unsure
   - Be especially careful when checking the rules related to code, as you have made mistakes in this area before.
   - IMPORTANT: NEVER provide any explanations or code in your response.
 
