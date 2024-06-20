@@ -30,6 +30,8 @@ src/app/shared/${ENTITY-NAME}/service/${ENTITY-NAME}-dao.service.ts
 
 3. **Comments**: Code should not contain commented out code.
 
+4. **File names**: File names should follow Angular file naming convention.
+
 ## Git
 
 1. **Commit Messages**: Use the [Conventional Commits](https://www.conventionalcommits.org/) format.
