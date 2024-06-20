@@ -17,10 +17,10 @@ function createBasePullRequestPrompt(
   pullRequestDetails: PullRequestDetails
 ): string {
   return `Your task is to check pull request follows style-guide. Instructions:
-  - Provide the response in following JSON format: "<Style guide Title> \n <style_guide_section>\n  <violated_rule> <status> \n"
+  - Provide the response in following JSON format: "<b><Style guide Title></b> \n <b><style_guide_section></b>\n  <i><violated_rule></i> <status> \n"
   - Example: "<Application name> Style guide: \n Section 1. \n Use camel case :x:\n"
   - Go through each rule strictly and carefully.
-  - Provide a list of violated rules exactly as it appears in the Style Guide followed by the <status>. ':x:'- if rule is violated; ':confused:' - if you are unsure
+  - Provide a list of violated rules exactly as it appears in the Style Guide followed by the <status>. ':x:'- if rule is violated; ':thinking:' - if you are unsure
   - Be especially careful when checking the branch and commit rules, as you have made mistakes in this area before.
   - IMPORTANT: NEVER provide any explanations or code in your response.
 

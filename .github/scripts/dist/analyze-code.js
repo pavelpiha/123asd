@@ -48,7 +48,7 @@ function createPrompt(styleGuide, file, pullRequestDetails) {
     return `Your task is to check pull request follows style-guide. Instructions:
   - Provide the response in following JSON format:  {"reviews": [{"lineNumber":  <line_number>, "reviewComment": "Style guide: <violated_rule_with_status>"}]}
   - Go through each rule strictly and carefully.
-  - Provide a list of violated rules as a bullet point exactly as it appears in the Style Guide, followed by the status ':x:' if it is violated or ':confused:' if you are unsure
+  - Provide a list of violated rules as a bullet point exactly as it appears in the Style Guide, followed by the status ':x:' if it is violated or ':thinking:' if you are unsure
   - Be especially careful when checking the branch and commit rules, as you have made mistakes in this area before.
   - IMPORTANT: NEVER provide any explanations or code in your response.
 
