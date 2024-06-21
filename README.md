@@ -2,4 +2,4 @@
 
 ## Development
 
-- **Read [STYLE_GUIDELINES](https://github.com/Infoblox-CTO/csp.ddiaas.ufe/blob/main/STYLE_GUIDELINES.md)**
+- **Read [STYLE_GUIDELINES](https://github.com/pavelpiha/style-guard/blob/main/STYLE_GUIDELINES.md)**
